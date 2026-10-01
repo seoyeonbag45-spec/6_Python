@@ -1,1 +1,9 @@
 venv
+
+# 파일 실습용
+_sample*
+stocks.*
+*.pkl
+
+# 환경 변수 파일
+.env
