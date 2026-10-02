@@ -39,15 +39,12 @@ def clean_prices(records, logger):
     df = pd.DataFrame(records)
     logger.info(f" 입력 {len(df):,}행")
 
-
     # 2. 숫자 타입 정제
-    # - 콤마 제거 : "1,000" -> "1000" -> 1000
-    # - 변환 실패 시 NaN 처리
     for col in NUM_COLS:
         if col in df.columns:
-            pd.to_numeric(
-            df[col].astype(str).str.replace(",","",regex=False),
-            errors="coerce"
+            df[col] = pd.to_numeric(
+                df[col].astype(str).str.replace(",", "", regex=False),
+                errors="coerce"
             )
 
     # 3. 날짜 타입 정제
@@ -70,7 +67,8 @@ def clean_prices(records, logger):
 
     # 6. 이상치 탐지
     # 종목별 날짜순으로 정렬
-    df.sort_values(["code", "date"]).reset_index(drop=True)
+    
+    df = df.sort_values(["code", "date"]).reset_index(drop=True)
 
     def is_outlier(s):
         """

@@ -22,10 +22,10 @@ COL_SQL = ",".join(_quote(c) for c in COLS)
 PH = ",".join([f":{i+1}" for i in range(len(COLS))])
 
 #MERGE INTO 사용 시 별칭 지정 문자열
-MERGE_USING = "," .join(f":{i+1} AS {_quote(c)}" for i, c in enumerate)
+MERGE_USING = ",".join(f":{i+1} AS {_quote(c)}" for i, c in enumerate(COLS))
 
 # 실행할 쿼리문
-UPSERT = """
+UPSERT = f"""
 MERGE INTO daily_price dst
 USING (SELECT {MERGE_USING} FROM dual) src
 ON (dst.code = src.code AND dst."date" = src."date")
@@ -100,4 +100,42 @@ def verify(df, logger):
         - 날짜 최대
 
     """
-    pass
+    conn = connect()
+
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT COUNT(*),
+                   COUNT(DISTINCT CODE),
+                   SUM(close),
+                   MIN("date"),
+                   MAX("date")
+             FROM daily_price      
+
+        """)
+        row = cur.fetchone()
+    conn.close()
+
+    n, codes, close_sum, min_d, max_d = row 
+
+    def to_date_str(v):
+        """전달된 datetime 데이터의 날짜만 추출하고 문자열로 반환"""
+        return str(v.date())if hasattr(v, "date") else str(v)
+
+    #{"검증항목_이름": (df기준_결과, db기준_결과), ..}
+    checks = {
+        "행 수": (len(df), n),
+        "종목 수": (df["code"].nunique(), codes),
+        "종가 합계": (int(df["close"].sum()), int(close_sum)),
+        "최소 날짜": (str(df["date"].min().date()), to_date_str(min_d)),
+        "최대 날짜": (str(df["date"].max().date()), to_date_str(max_d)),
+
+    }
+
+    all_ok = True
+    for name, (exp, act) in checks.items():
+        ok = str(exp) == str(act)
+        all_ok &= ok
+
+        logger.info(f" {'ok ' if ok else 'FAIL'} {name:<12} {exp}/{act}")
+
+    return all_ok    

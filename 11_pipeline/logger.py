@@ -39,7 +39,7 @@ def setup(name="pipeline", level=logging.INFO):
     os.makedirs(LOG_DIR, exist_ok=True)
 
     # 저장될 로그 파일 설정 
-    path = os.path.join(LOG_DIR, f"{datetime.now():%Y/%m/%d}.log")
+    path = os.path.join(LOG_DIR, f"{datetime.now():%Y-%m-%d}.log")
 
     # logger 객체 생성
     logger = logging.getLogger(name)

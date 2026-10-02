@@ -4,7 +4,7 @@
     공통으로 사용되는 값을 정의하기 위한 용도
 """
 import os
-from _db import connect, get_engine, prices_path, ENCODING, data_path, KHLAB_DATASETS, raw_prices_path
+from _db import connect, get_engine, prices_path, ENCODING, data_path, KHLAB_BASE, raw_prices_path
 
 # 환경 변수 기반 설정
 SOURCE = os.getenv("PIPELINE_SOURCE", "csv") #Extract 방식 : api 또는 csv
