@@ -56,3 +56,13 @@ if __name__ == "__main__":
         payment_method 고유값 : {df["payment_method"].unique().tolist()}
     """)
     print("=" * 60)
+
+    # 정제된 데이터를 CSV 파일로 저장
+    df.to_csv(
+        "data/clean_rentals.csv",
+        index=False,
+        encoding="utf-8-sig"
+    )
+
+    print("clean_rentals.csv 저장 완료!")
+    
